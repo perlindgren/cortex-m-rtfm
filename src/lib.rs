@@ -422,6 +422,8 @@
 #![feature(optin_builtin_traits)]
 #![no_std]
 
+// test change
+
 extern crate cortex_m;
 extern crate static_ref;
 extern crate typenum;
@@ -561,8 +563,9 @@ where
     PC: LessThanOrEqual<UMax>,
 {
     #[doc(hidden)]
-    pub const unsafe fn _new(peripheral: cortex_m::peripheral::Peripheral<P>,)
-        -> Self {
+    pub const unsafe fn _new(
+        peripheral: cortex_m::peripheral::Peripheral<P>,
+    ) -> Self {
         Peripheral {
             _ceiling: PhantomData,
             peripheral: peripheral,
