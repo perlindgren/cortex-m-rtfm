@@ -20,7 +20,6 @@ cortex-m = "0.4.0"
 cortex-m-rtfm-macros = { path = "macros", version = "0.3.0" }
 rtfm-core = "0.2.0"
 untagged-option = "0.1.1"
-#rtfm-syntax = "0.2.1"
 
 [target.'cfg(target_arch = "x86_64")'.dev-dependencies]
 compiletest_rs = "0.3.5"
@@ -36,5 +35,14 @@ version = "0.8.0"
 [features]
 cm7-r0p1 = ["cortex-m/cm7-r0p1"]
 
+# [profile.release]
+# lto = true
+
+# Japaric, please check before merge
 [profile.release]
 lto = true
+debug = true
+
+[profile.dev]
+codegen-units = 1
+incremental = false

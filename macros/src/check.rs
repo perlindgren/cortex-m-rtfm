@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
 use syn::{Ident, Path};
-//use syntax::check::{self, Idle, Init};
-use syntax::{self, Idle, Init, Resources, Statics};
+use syntax::check::{self, Idle, Init};
+use syntax::{self, Resources, Statics};
 
 use syntax::error::*;
 
@@ -54,7 +54,8 @@ pub struct Task {
     pub resources: Resources,
 }
 
-pub fn app(app: App) -> Result<App> {
+pub fn app(app: check::App) -> Result<App> {
+    println!("-- checking tasks --");
     let app = App {
         device: app.device,
         idle: app.idle,
@@ -63,14 +64,15 @@ pub fn app(app: App) -> Result<App> {
         tasks: app.tasks
             .into_iter()
             .map(|(k, v)| {
-                let v = ::check::task(k.as_ref(), v)
-                    .chain_err(|| format!("checking task `{}`", k))?;
+                let v =
+                    ::check::task(k.as_ref(), v).chain_err(|| format!("checking task `{}`", k))?;
 
                 Ok((k, v))
             })
             .collect::<Result<_>>()?,
     };
 
+    println!("-- checking resources --");
     ::check::resources(&app).chain_err(|| "checking `resources`")?;
 
     Ok(app)

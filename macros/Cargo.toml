@@ -11,12 +11,15 @@ version = "0.3.1"
 
 [dependencies]
 error-chain = "0.10.0"
-quote = "0.3.15"
+quote = "0.4.2"
 rtfm-syntax = "0.2.1"
+proc-macro2 = "0.2.3"
 
 [dependencies.syn]
 version = "0.12.14"
 features = ["full", "extra-traits"]
+
+
 
 [lib]
 proc-macro = true

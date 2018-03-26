@@ -1,5 +1,5 @@
 //! Procedural macros of the `cortex-m-rtfm` crate
-#![deny(warnings)]
+// #![deny(warnings)]
 #![feature(proc_macro)]
 #![recursion_limit = "128"]
 
@@ -8,6 +8,7 @@ extern crate error_chain;
 extern crate proc_macro;
 #[macro_use]
 extern crate quote;
+extern crate proc_macro2;
 extern crate rtfm_syntax as syntax;
 extern crate syn;
 
@@ -175,12 +176,24 @@ pub fn app(ts: TokenStream) -> TokenStream {
     }
 }
 
+use syn::Ident;
+fn test() {
+    let ident: Ident = Ident::from("uothnh");
+    let q = quote!(utho #ident);
+    println!("{:?}", q);
+}
+
 fn run(ts: TokenStream) -> Result<TokenStream> {
+    println!("-- parse --");
     let app = App::parse(ts).chain_err(|| "parsing")?;
+    println!("-- syntax check --");
     let app = syntax::check::app(app).chain_err(|| "checking the AST")?;
+    println!("-- rtfm check --");
     let app = check::app(app)?;
 
+    println!("-- analyze ownerships --");
     let ownerships = analyze::app(&app);
+    println!("-- trans --");
     let tokens = trans::app(&app, &ownerships);
 
     Ok(format!("{}", tokens)

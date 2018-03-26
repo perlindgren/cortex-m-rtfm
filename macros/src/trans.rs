@@ -1,5 +1,7 @@
-use quote::{Ident, Tokens};
-use syn::{Lit, StrStyle};
+// use quote::{Ident, ToTokens, Tokens};
+use quote::{ToTokens, Tokens};
+use syn::{Ident, Lit, LitStr, StrStyle};
+use proc_macro2::Span;
 
 use analyze::Ownerships;
 use check::{App, Kind};
@@ -53,7 +55,7 @@ fn idle(app: &App, ownerships: &Ownerships, main: &mut Vec<Tokens>, root: &mut V
         let super_ = if needs_reexport {
             None
         } else {
-            Some(Ident::new("super"))
+            Some(Ident::from("super"))
         };
         let mut rexprs = vec![];
         let mut rfields = vec![];
@@ -69,7 +71,7 @@ fn idle(app: &App, ownerships: &Ownerships, main: &mut Vec<Tokens>, root: &mut V
                     pub #name: &'static mut #ty,
                 });
 
-                let _name = Ident::new(format!("_{}", name.as_ref()));
+                let _name = Ident::from(format!("_{}", name.as_ref()));
                 rexprs.push(if resource.expr.is_some() {
                     quote! {
                         #name: &mut #super_::#_name,
@@ -132,10 +134,10 @@ fn idle(app: &App, ownerships: &Ownerships, main: &mut Vec<Tokens>, root: &mut V
 
         // owned resource
         if ceiling == 0 {
-            continue
+            continue;
         }
 
-        let _name = Ident::new(format!("_{}", name.as_ref()));
+        let _name = Ident::from(format!("_{}", name.as_ref()));
         let resource = app.resources
             .get(name)
             .expect(&format!("BUG: resource {} has no definition", name));
@@ -262,7 +264,7 @@ fn init(app: &App, main: &mut Vec<Tokens>, root: &mut Vec<Tokens>) {
                     &mut #name
                 },));
             } else {
-                let _name = Ident::new(format!("_{}", name.as_ref()));
+                let _name = Ident::from(format!("_{}", name.as_ref()));
                 lifetime = Some(quote!('a));
 
                 fields.push(quote! {
@@ -309,7 +311,7 @@ fn init(app: &App, main: &mut Vec<Tokens>, root: &mut Vec<Tokens>) {
         let mut fields = vec![];
 
         for (name, resource) in late_resources {
-            let _name = Ident::new(format!("_{}", name.as_ref()));
+            let _name = Ident::from(format!("_{}", name.as_ref()));
 
             let ty = &resource.ty;
 
@@ -416,7 +418,7 @@ fn resources(app: &App, ownerships: &Ownerships, root: &mut Vec<Tokens>) {
     let krate = krate();
 
     for name in ownerships.keys() {
-        let _name = Ident::new(format!("_{}", name.as_ref()));
+        let _name = Ident::from(format!("_{}", name.as_ref()));
 
         // Declare the static that holds the resource
         let resource = app.resources
@@ -453,7 +455,7 @@ fn tasks(app: &App, ownerships: &Ownerships, root: &mut Vec<Tokens>) {
         if has_resources {
             for rname in &task.resources {
                 let ceiling = ownerships[rname].ceiling();
-                let _rname = Ident::new(format!("_{}", rname.as_ref()));
+                let _rname = Ident::from(format!("_{}", rname.as_ref()));
                 let resource = app.resources
                     .get(rname)
                     .expect(&format!("BUG: resource {} has no definition", rname));
@@ -591,12 +593,18 @@ fn tasks(app: &App, ownerships: &Ownerships, root: &mut Vec<Tokens>) {
         }
 
         let path = &task.path;
-        let _tname = Ident::new(format!("_{}", tname));
-        let export_name = Lit::Str(tname.as_ref().to_owned(), StrStyle::Cooked);
+        let _tname = Ident::from(format!("_{}", tname));
+        println!("----- _tname {}", _tname);
+        // let qtname = Ident::from(format!("_{:?}", tname));
+        // println!("----- qtname {}", qtname);
+
+        //let export_name = Lit::Str(tname.as_ref().to_owned(), StrStyle::Cooked);
+        let export_name = LitStr::new(tname.as_ref(), Span::call_site());
         root.push(quote! {
             #[allow(non_snake_case)]
             #[allow(unsafe_code)]
             #[export_name = #export_name]
+            // #[export_name = "#_tname"]
             pub unsafe extern "C" fn #_tname() {
                 let f: fn(#(#tys,)*) = #path;
 
