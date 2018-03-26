@@ -176,9 +176,7 @@ pub fn app(ts: TokenStream) -> TokenStream {
 }
 
 fn run(ts: TokenStream) -> Result<TokenStream> {
-    let input = format!("{}", ts);
-
-    let app = App::parse(&input).chain_err(|| "parsing")?;
+    let app = App::parse(ts).chain_err(|| "parsing")?;
     let app = syntax::check::app(app).chain_err(|| "checking the AST")?;
     let app = check::app(app)?;
 
