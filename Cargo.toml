@@ -14,6 +14,15 @@ readme = "README.md"
 repository = "https://github.com/japaric/cortex-m-rtfm"
 version = "0.4.0"
 
+
+[patch.crates-io]
+vcell = { git = "https://github.com/perlindgren/vcell.git" }
+#vcell = { path = "../../vcell" }
+volatile-register = { git = "https://github.com/perlindgren/volatile-register.git" }
+#volatile-register = { git = "https://gitlab.henriktjader.com/pln/volatile-register.git", branch = "klee-analysis" }
+#volatile-register = { path = "../../klee/volatile-register/" }
+cortex-m = { git = "https://github.com/perlindgren/cortex-m.git", branch = "klee-analysis" }
+
 [lib]
 name = "rtfm"
 
@@ -34,7 +43,7 @@ name = "types"
 required-features = ["timer-queue"]
 
 [dependencies]
-cortex-m = "0.5.8"
+cortex-m = "0.6.0"
 cortex-m-rt = "0.6.7"
 cortex-m-rtfm-macros = { path = "macros", version = "0.4.0" }
 heapless = "0.4.1"
@@ -52,6 +61,7 @@ version = "0.5.1"
 
 [features]
 timer-queue = ["cortex-m-rtfm-macros/timer-queue"]
+klee-analysis = ["cortex-m/klee-analysis", "volatile-register/klee-analysis", "vcell/klee-analysis"]
 
 [target.x86_64-unknown-linux-gnu.dev-dependencies]
 compiletest_rs = "0.3.16"
